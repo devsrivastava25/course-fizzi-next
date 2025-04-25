@@ -144,4 +144,142 @@ export default function Scene({}: Props) {
       <Environment files="/hdr/lobby.hdr" environmentIntensity={1.5} />
     </group>
   );
+}"use client";
+import FloatingCan from "@/components/FloatingCan";
+import { Environment } from "@react-three/drei";
+import { useRef } from "react";
+import { Group } from "three";
+import { useStore } from "@/hooks/useStore";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+// Register GSAP plugins
+gsap.registerPlugin(useGSAP, ScrollTrigger);
+
+export default function Scene() {
+  const isReady = useStore((state) => state.isReady);
+
+  const can1ref = useRef<Group>(null);
+  const can2ref = useRef<Group>(null);
+  const can3ref = useRef<Group>(null);
+  const can4ref = useRef<Group>(null);
+  const can5ref = useRef<Group>(null);
+  const can1Groupref = useRef<Group>(null);
+  const can2Groupref = useRef<Group>(null);
+  const Groupref = useRef<Group>(null);
+
+  const FLOAT_SPEED = 1.5;
+  const FLOAT_INTENSITY = 1.0; // Float intensity
+  const ROTATION_INTENSITY = 0.5; // Rotation intensity
+
+  useGSAP(() => {
+    if (
+      !can1ref.current ||
+      !can2ref.current ||
+      !can3ref.current ||
+      !can4ref.current ||
+      !can5ref.current ||
+      !can1Groupref.current ||
+      !can2Groupref.current ||
+      !Groupref.current
+    )
+      return;
+
+    isReady();
+
+    gsap.set(can1ref.current.position, { x: -1.5 });
+    gsap.set(can1ref.current.rotation, { z: -0.5 });
+    gsap.set(can2ref.current.position, { x: 1.5 });
+    gsap.set(can2ref.current.rotation, { z: 0.5 });
+    gsap.set(can3ref.current.position, { y: 5, z: 2 });
+    gsap.set(can4ref.current.position, { x: 2, y: 4, z: 2 });
+    gsap.set(can5ref.current.position, { y: -5 });
+
+    const introTl = gsap.timeline({
+      defaults: { duration: 3, ease: "back.out(1.4)" },
+    });
+    if (window.scrollY < 20) {
+      introTl
+        .from(can1Groupref.current.position, { y: -5, x: 1 }, 0)
+        .from(can1Groupref.current.rotation, { z: 3 }, 0)
+        .from(can2Groupref.current.position, { y: 5, x: 1 }, 0)
+        .from(can2Groupref.current.rotation, { z: 3 }, 0);
+    }
+
+    const scrollTl = gsap.timeline({
+      defaults: { duration: 2 },
+      scrollTrigger: {
+        trigger: ".hero",
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 1.5,
+      },
+    });
+
+    scrollTl
+      .to(Groupref.current.rotation, { y: Math.PI * 2 })
+      .to(can1ref.current.position, { x: -0.5, y: -0.7, z: -2 }, 0)
+      .to(can1ref.current.rotation, { z: 0.3 }, 0)
+      .to(can2ref.current.position, { x: 1, y: -0.2, z: -1 }, 0)
+      .to(can2ref.current.rotation, { z: 0 }, 0)
+      .to(can3ref.current.position, { x: -0.3, y: -0.5, z: -1 }, 0)
+      .to(can3ref.current.rotation, { z: -0.1 }, 0)
+      .to(can4ref.current.position, { x: 0, y: -0.3, z: 0.5 }, 0)
+      .to(can4ref.current.rotation, { z: 0.3 }, 0)
+      .to(can5ref.current.position, { x: 0.3, y: 0.5, z: -0.5 }, 0)
+      .to(can5ref.current.rotation, { z: -0.25 }, 0)
+      .to(
+        Groupref.current.position,
+        { x: 1, duration: 3, ease: "sine.inOut" },
+        1.3
+      );
+  });
+
+  return (
+    <group ref={Groupref}>
+      <group ref={can1Groupref}>
+        {/* Type assertion to bypass errors */}
+        <FloatingCan
+          ref={can1ref}
+          flavor="blackCherry"
+          floatSpeed={FLOAT_SPEED}
+          floatIntensity={FLOAT_INTENSITY as number} // Type assertion
+          rotationIntensity={ROTATION_INTENSITY as number} // Type assertion
+        />
+      </group>
+      <group ref={can2Groupref}>
+        <FloatingCan
+          ref={can2ref}
+          flavor="lemonLime"
+          floatSpeed={FLOAT_SPEED}
+          floatIntensity={FLOAT_INTENSITY as number} // Type assertion
+          rotationIntensity={ROTATION_INTENSITY as number} // Type assertion
+        />
+      </group>
+      <FloatingCan
+        ref={can3ref}
+        flavor="grape"
+        floatSpeed={FLOAT_SPEED}
+       floatIntensity={FLOAT_INTENSITY as number} // Type assertion
+          rotationIntensity={ROTATION_INTENSITY as number} // Type assertion
+      />
+      <FloatingCan
+        ref={can4ref}
+        flavor="strawberryLemonade"
+        floatSpeed={FLOAT_SPEED}
+       floatIntensity={FLOAT_INTENSITY as number} // Type assertion
+          rotationIntensity={ROTATION_INTENSITY as number} // Type assertion
+      />
+      <FloatingCan
+        ref={can5ref}
+        flavor="watermelon"
+        floatSpeed={FLOAT_SPEED}
+        floatIntensity={FLOAT_INTENSITY as number} // Type assertion
+          rotationIntensity={ROTATION_INTENSITY as number} // Type assertion
+      />
+      <Environment files="/hdrs/lobby.hdr" />
+    </group>
+  );
 }
+
